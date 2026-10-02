@@ -14,6 +14,32 @@ declare module '@capra/core' {
   }
 }
 
+type NavItemProps = { label: string; icon: React.ReactNode; to: string; active: boolean };
+
+/**
+ * A navigation item that changes page inside the app. Capra's item renders a plain link, and a plain
+ * link to "/memory" makes the browser load that address in the app's frame: outside the path the app
+ * is mounted at, which is a blank page once the app is installed. So the click is handed to the
+ * router; the href stays (with the mount path) for opening in a new tab.
+ */
+function NavItem({ label, icon, to, active }: NavItemProps) {
+  const navigate = useNavigate();
+  const href = useHref(to);
+  return (
+    <VerticalNavigation.Item
+      label={label}
+      icon={icon}
+      href={href}
+      isActive={active}
+      onClick={(event: React.MouseEvent) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+        event.preventDefault();
+        navigate(to);
+      }}
+    />
+  );
+}
+
 function App() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -26,14 +52,14 @@ function App() {
         <div className="app-nav">
           <VerticalNavigation aria-label="Vizzy" FORCE__className="app-nav-fill">
             <VerticalNavigation.ItemList>
-              <VerticalNavigation.Item label="Home" icon={<HomeOutlined />} href="/" isActive={home} />
-              <VerticalNavigation.Item label="Memory" icon={<Lightbulb />} href="/memory" isActive={pathname === '/memory'} />
-              <VerticalNavigation.Item label="Escalations" icon={<SupportOutlined />} href="/escalations" isActive={pathname === '/escalations'} />
-              <VerticalNavigation.Item label="Audit log" icon={<HistoryOutlined />} href="/audit" isActive={pathname === '/audit'} />
+              <NavItem label="Home" icon={<HomeOutlined />} to="/" active={home} />
+              <NavItem label="Memory" icon={<Lightbulb />} to="/memory" active={pathname === '/memory'} />
+              <NavItem label="Escalations" icon={<SupportOutlined />} to="/escalations" active={pathname === '/escalations'} />
+              <NavItem label="Audit log" icon={<HistoryOutlined />} to="/audit" active={pathname === '/audit'} />
             </VerticalNavigation.ItemList>
             <VerticalNavigation.Footer>
-              <VerticalNavigation.Item label="Settings" icon={<Cog />} href="/settings" isActive={pathname === '/settings'} />
-              <VerticalNavigation.Item label="Documentation" icon={<Book />} href="/docs" isActive={pathname === '/docs'} />
+              <NavItem label="Settings" icon={<Cog />} to="/settings" active={pathname === '/settings'} />
+              <NavItem label="Documentation" icon={<Book />} to="/docs" active={pathname === '/docs'} />
             </VerticalNavigation.Footer>
           </VerticalNavigation>
         </div>

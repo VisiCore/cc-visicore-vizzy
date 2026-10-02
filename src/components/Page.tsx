@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { Alert, ButtonLink, EmptyState, Spinner, Text } from '@capra/core';
+import { Alert, Button, EmptyState, Spinner, Text } from '@capra/core';
+import { useNavigate } from 'react-router-dom';
 import { useAccount } from '../lib/account';
 import { useTheme } from '../lib/theme';
 
@@ -44,6 +45,7 @@ export function Page({ title, description, actions, open, bare, children }: Page
 function NotReady() {
   const { account, reload } = useAccount();
   const theme = useTheme();
+  const navigate = useNavigate();
   if (account.status === 'loading') {
     return <div className="centered"><Spinner size="lg" title="Connecting to Vizzy" /></div>;
   }
@@ -67,7 +69,7 @@ function NotReady() {
       title="Vizzy needs a licence key"
       description="Enter the key VisiCore gave your organization. It is stored encrypted in Cribl and used for every request to Vizzy."
     >
-      <ButtonLink href="/settings" variant="primary">Open Settings</ButtonLink>
+      <Button variant="primary" onClick={() => navigate('/settings')}>Open Settings</Button>
     </EmptyState>
   );
 }

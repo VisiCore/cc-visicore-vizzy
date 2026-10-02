@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1 (2026-10-02)
+
+* Fixed: in an installed app, clicking a navigation item (Memory, Escalations, Audit log, Settings,
+  Documentation) loaded a blank page. Navigation now stays inside the app.
+* Sharing reads the organization's members from Cribl.Cloud; the chat list is slimmer; reply tables
+  no longer squeeze narrow columns.
+
 ## 0.1.0 (2026-10-02)
 
 First preview.
