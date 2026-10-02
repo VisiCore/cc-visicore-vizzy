@@ -44,7 +44,7 @@ What Vizzy does that the assistants built into Cribl and Splunk do not: it works
 | I need a new HEC input in Splunk for the web app's index and a Cribl destination that sends to it. | Vizzy makes both changes, in order. Each is shown as the exact request and waits for Approve. The token Splunk returns goes into the Cribl destination without appearing in the chat or the audit log. |
 | Which Cribl destinations send to Splunk, and does every index they write to exist in Splunk? | A question neither product can answer alone, because each only knows its own half. |
 | This is beyond what we can fix. Get a VisiCore engineer. | A person, not a dead end: Vizzy writes the handoff, and a VisiCore engineer reads the conversation and replies in it. |
-| Create an event index for the web team's production logs with 90-day retention. | Done the VisiCore way: Vizzy applies VisiCore's naming and retention standards, tells you which guidance the change follows, applies it after approval, and reads it back to confirm. |
+| Onboard our Palo Alto firewall logs end to end: a syslog source in Cribl, parsing, a route, and a Splunk index sized for 30 GB a day with one year of retention. | A whole onboarding done the VisiCore way, not one object at a time. Vizzy reads VisiCore's onboarding and index standards, lays out the plan across both products, and names the guidance each step follows. Every change is its own approval, commit and deploy included, and it verifies each one before moving to the next. |
 
 Behind all of them: Vizzy remembers what it has learned about your environment from one conversation to the next, and every call it makes is kept in an audit log that cannot be edited.
 
