@@ -2,7 +2,9 @@
 
 Vizzy is VisiCore's Cribl consultant, inside your Cribl: ask it about your deployment in plain language, and let it make changes that you approve one request at a time.
 
-![Vizzy's home screen inside Cribl: a greeting, four suggested questions and the message box](docs/screenshots/03-home.png)
+![Vizzy in use: it lists Cribl datasets and Splunk indexes, proposes a new Splunk index, the request is approved on its card, Vizzy creates and verifies the index, and the conversation is shared with a colleague](docs/screenshots/demo.gif)
+
+*Vizzy lists Cribl datasets and Splunk indexes, then creates a Splunk index: it shows the exact request, waits for Approve, applies it, and reads the result back. Played at 1.5x.*
 
 ## Summary
 
@@ -71,6 +73,8 @@ Settings apply to everyone the app is shared with, and anyone the app is shared 
 5. Review what was done in the Audit log.
 
 ### First Run, In Pictures
+
+![Vizzy's home screen inside Cribl: a greeting, four suggested questions and the message box](docs/screenshots/03-home.png)
 
 Until a licence key is entered, every page says so and points to Settings.
 
