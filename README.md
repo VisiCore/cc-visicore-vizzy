@@ -4,7 +4,7 @@ Vizzy is VisiCore's Cribl consultant, inside your Cribl: ask it about your deplo
 
 ![Vizzy in use: it lists Cribl datasets and Splunk indexes, proposes a new Splunk index, the request is approved on its card, Vizzy creates and verifies the index, and the conversation is shared with a colleague](docs/screenshots/demo.gif)
 
-*Vizzy lists Cribl datasets and Splunk indexes, then creates a Splunk index: it shows the exact request, waits for Approve, applies it, and reads the result back. Played at 1.5x.*
+*Vizzy lists Cribl datasets and Splunk indexes, then creates a Splunk index: it shows the exact request, waits for Approve, applies it, and reads the result back. The conversation is then shared with a coworker from the same Cribl organization, who joins it and picks up where it left off. Played at 1.5x.*
 
 ## Summary
 
@@ -16,7 +16,9 @@ Vizzy is a Cribl app for running and understanding a Cribl deployment by convers
 * Key capabilities:
   * Answers questions from live state: worker groups, fleets, nodes, sources, destinations, pipelines, routes, packs, version control, metrics, logs and Cribl Search.
   * Proposes changes as the exact API request, shown on an approval card. Nothing is sent to Cribl until you press Approve.
+  * Shared conversations: bring a coworker from your Cribl organization into a chat, so two or more of you work with Vizzy together in one thread.
   * Follows VisiCore's guidance for Cribl work, and says which guidance a change follows.
+  * Remembers your preferences and what it has learned about your environment, and can hand a conversation to a VisiCore engineer.
   * Keeps an audit log of every tool call that cannot be edited or deleted.
   * Draws diagrams of your environment with Cribl's own icons.
 * Intended users:
@@ -30,6 +32,7 @@ Vizzy is a Cribl app for running and understanding a Cribl deployment by convers
 * You want a quick, accurate picture of a deployment: what is connected to what, what is disabled, what is undeployed.
 * Something looks wrong and you want the errors, backpressure and node health gathered and explained.
 * You want a change made the VisiCore way, with the request in front of you before it is applied.
+* You want a second person in the room: one of you asks for a change and a coworker reviews and approves it, in the same conversation.
 
 ## Before You Install
 
@@ -71,6 +74,22 @@ Settings apply to everyone the app is shared with, and anyone the app is shared 
 3. On Home, ask a question or pick one of the suggested ones.
 4. When Vizzy proposes a change, read the request on the card and Approve or Reject it.
 5. Review what was done in the Audit log.
+
+### Working Together In One Conversation
+
+A conversation can be shared with coworkers in your Cribl organization, so several people and Vizzy work in the same thread.
+
+1. Open a conversation and press **Share**.
+2. Pick a coworker under "Add a colleague". The list comes from your Cribl organization's own members, so they do not need to have opened Vizzy before.
+3. The conversation appears under **Shared** in their chat list. They see everything in it, including what came before, and can ask Vizzy in it themselves.
+
+How it behaves:
+
+* Everyone follows the same conversation live: each person's messages carry their name, and Vizzy knows who is asking.
+* Vizzy acts with the Cribl permissions of whoever asked. A coworker with less access gets less; nobody borrows anyone else's.
+* Any participant who may approve changes can approve one. The change is then sent with the approver's Cribl permissions, and the audit log records who asked and who approved.
+* One question at a time: while Vizzy is answering one person, the others wait for it to finish.
+* The owner can add and remove people or hand the conversation over; anyone else can leave.
 
 ### First Run, In Pictures
 
@@ -140,7 +159,8 @@ This app is built by VisiCore. VisiCore owns support, maintenance and feature re
 ## Known Limitations
 
 * The browser tab must stay open while Vizzy works; closing it fails the step in progress.
-* Conversations are not shared between people.
+* In a shared conversation, an approved change is sent by the approver's browser, so the approver's tab has to be open when they approve.
+* A coworker you add can take up to a minute to see the conversation appear in their list.
 * Billing and credit usage are not available to Vizzy from inside the app.
 * Splunk is available only when VisiCore has connected it for your organization. It is reached from the Vizzy server with that one connection, not with each person's own Splunk sign-in.
 * Vizzy cannot install or manage other Cribl apps.
