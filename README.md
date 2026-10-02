@@ -36,17 +36,22 @@ Vizzy is a Cribl app for running and understanding a Cribl deployment by convers
 
 ## Use Cases
 
-What Vizzy does that the assistants built into Cribl and Splunk do not: it works across both in one conversation, it carries out the change instead of describing it, and it brings VisiCore's standards and people with it.
+Sample prompts to paste into Vizzy.
 
-| Ask | Why it is different |
+### Across Cribl and Splunk
+
+| Ask | What you get |
 |---|---|
-| Data from the firewall source stopped showing up in Splunk an hour ago. Trace it from the Cribl source to the Splunk index and tell me where it stops. | One investigation across both products: source, route, pipeline, destination health, then the index. No switching tools, no copying IDs between them. |
-| I need a new HEC input in Splunk for the web app's index and a Cribl destination that sends to it. | Vizzy makes both changes, in order. Each is shown as the exact request and waits for Approve. The token Splunk returns goes into the Cribl destination without appearing in the chat or the audit log. |
-| Which Cribl destinations send to Splunk, and does every index they write to exist in Splunk? | A question neither product can answer alone, because each only knows its own half. |
-| This is beyond what we can fix. Get a VisiCore engineer. | A person, not a dead end: Vizzy writes the handoff, and a VisiCore engineer reads the conversation and replies in it. |
-| Onboard our Palo Alto firewall logs end to end: a syslog source in Cribl, parsing, a route, and a Splunk index sized for 30 GB a day with one year of retention. | A whole onboarding done the VisiCore way, not one object at a time. Vizzy reads VisiCore's onboarding and index standards, lays out the plan across both products, and names the guidance each step follows. Every change is its own approval, commit and deploy included, and it verifies each one before moving to the next. |
+| Data from the firewall source stopped showing up in Splunk an hour ago. Trace it from the Cribl source to the Splunk index and tell me where it stops. | Vizzy checks the source, the route, the pipeline and the destination's health in Cribl, then the index in Splunk, and reports the first place the data stops. |
+| I need a new HEC input in Splunk for the web app's index and a Cribl destination that sends to it. | Both changes, in order, each shown as the exact request and applied after you approve. The token Splunk returns goes into the Cribl destination without appearing in the chat or the audit log. |
+| Which Cribl destinations send to Splunk, and does every index they write to exist in Splunk? | Destinations matched to indexes, with the ones that point at an index that is missing. |
 
-Behind all of them: Vizzy remembers what it has learned about your environment from one conversation to the next, and every call it makes is kept in an audit log that cannot be edited.
+### With VisiCore behind it
+
+| Ask | What you get |
+|---|---|
+| Onboard our Palo Alto firewall logs end to end: a syslog source in Cribl, parsing, a route, and a Splunk index sized for 30 GB a day with one year of retention. | A plan across both products built on VisiCore's onboarding and index standards, with the guidance each step follows. Each change is approved on its own card, commit and deploy included, and verified before the next. |
+| This is beyond what we can fix. Get a VisiCore engineer. | Vizzy writes the handoff and escalates. A VisiCore engineer reads the conversation and replies in it. |
 
 Splunk prompts need VisiCore to have connected your Splunk. Changes need "Allow changes, with approval" switched on.
 
