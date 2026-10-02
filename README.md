@@ -34,6 +34,86 @@ Vizzy is a Cribl app for running and understanding a Cribl deployment by convers
 * You want a change made the VisiCore way, with the request in front of you before it is applied.
 * You want a second person in the room: one of you asks for a change and a coworker reviews and approves it, in the same conversation.
 
+## Use Cases
+
+Sample prompts to paste into Vizzy. The Cribl ones work as soon as the licence key is in. The Splunk ones need VisiCore to have connected your Splunk. Anything that changes configuration needs "Allow changes, with approval" switched on, and still waits for your Approve.
+
+### Get the lay of the land (Cribl)
+
+| Ask | What you get |
+|---|---|
+| What worker groups and fleets do I have, and which are provisioned? | A table of every group and fleet with its type, node count and state. |
+| Map each route in the default worker group to its source, pipeline, and destination in one table. | The route table read as a data flow, in order, with the filter on each route. |
+| Draw my Cribl environment as a diagram: sources, worker groups, and destinations. | A diagram of your deployment using Cribl's own icons. |
+| Document every pipeline in the default worker group: purpose, functions, inputs and outputs. | Written documentation you can paste into a wiki. |
+| List all configured Packs and where they are deployed. | Packs per group and fleet, with versions. |
+
+### Find what is wrong (Cribl)
+
+| Ask | What you get |
+|---|---|
+| Are there any active errors on sources or destinations in the default worker group? | Each unhealthy source and destination with the error it is reporting. |
+| Which destinations have the highest backpressure or blocked status right now? | Destinations ranked by trouble, with the likely cause. |
+| Rank my worker groups by current events-per-second throughput. | Events and bytes in and out per group over the last few minutes. |
+| Have any nodes missed a heartbeat within the last 24 hours? Are any at risk of running out of disk? | Node health across groups and fleets, worst first. |
+| Show the commit and deploy status of each worker group. Any undeployed changes? | Which groups have changes that are saved but not yet live. |
+| Were any inputs or outputs created or modified in the last 7 days? | Recent configuration changes, from version control. |
+
+### Search your data (Cribl Search)
+
+| Ask | What you get |
+|---|---|
+| What datasets are currently available to search in Cribl Search? | Datasets with their providers. |
+| Search my catch-all dataset for the past 24 hours and identify any suspicious activity. | Vizzy writes and runs the searches, then summarizes what stands out. |
+| How many events per hour did the firewall dataset receive yesterday? Flag any gaps. | A count by hour with the quiet periods called out. |
+
+### Clean up and save (Cribl)
+
+| Ask | What you get |
+|---|---|
+| Find disabled but still configured sources and destinations that can be cleaned up. | A list of candidates, with why each one looks unused. |
+| Identify redundant or overlapping routes that process the same data twice. | Routes whose filters overlap, and what merging them would change. |
+| Which Lake datasets keep data longer than 90 days, and which look like test leftovers? | Datasets grouped by retention, with cleanup candidates. |
+
+### Make a change, with approval (Cribl)
+
+| Ask | What happens |
+|---|---|
+| Add a syslog source on port 5514 to the default worker group and route it to the main destination. | Vizzy reads the current state, states its plan, then proposes each change as the exact API request. Nothing is sent until you approve each card. |
+| Disable the source in_test_tcp in the default group. | One change, one card. After you approve, Vizzy reads the source back to confirm. |
+| Commit the pending changes in the default group with the message "add syslog source", then deploy. | Commit and deploy are separate changes, each with its own approval. |
+
+### Splunk
+
+| Ask | What you get |
+|---|---|
+| Which Splunk indexes exist, how big are they, and what are their retention settings? | Indexes with event counts, size and retention, empty ones called out. |
+| What's driving my Splunk license usage? | The sourcetypes and indexes using the most licence. |
+| Search _internal for errors in the last 4 hours and summarize the top causes. | Vizzy runs the search and groups the errors by cause. |
+| List my scheduled saved searches and when each one runs next. | Saved searches with schedule, owner and app. |
+| Who has access to this Splunk instance, and with which roles? | Users and their roles. |
+| Create an event index named app_web_prod with 90-day retention and a 50 GB cap. | The index is proposed as the exact request, following VisiCore's naming and retention guidance; after you approve, Vizzy creates it and reads it back. |
+
+### Across Cribl and Splunk
+
+This is where having both in one conversation pays off.
+
+| Ask | What you get |
+|---|---|
+| List my Cribl datasets and Splunk indexes side by side. | One view of where data lands on both sides. |
+| Which Cribl destinations send to Splunk, and does each index they write to exist in Splunk? | Destinations matched to indexes, with the ones that point at an index that is missing. |
+| Data from the firewall source stopped showing up in Splunk an hour ago. Trace it from the Cribl source to the Splunk index and tell me where it stops. | Vizzy checks the source, the route, the pipeline, the destination's health, then the index, and reports the first place the data stops. |
+| I need a new HEC input in Splunk for the app_web_prod index and a Cribl destination that sends to it. | Two changes, each approved on its own card. The HEC token Splunk returns is passed into the Cribl destination without being shown in the chat or the audit log. |
+| Compare what Cribl sent to the splunk_prod destination today with what Splunk indexed. | Event counts from both sides, with the difference. |
+
+### With a coworker
+
+| Ask | What happens |
+|---|---|
+| (Share the conversation, then) Walk Jacob through what we changed and why. | Vizzy summarizes the conversation for the person who just joined. |
+| Propose the change, and let my coworker approve it. | You ask, they review the exact request and approve it; the audit log records both names. |
+| This is beyond what we can fix. Get a VisiCore engineer. | Vizzy writes a handoff and escalates; the engineer reads the conversation and replies in it. |
+
 ## Before You Install
 
 * Required Cribl product or deployment type: Cribl.Cloud.
