@@ -41,11 +41,11 @@ What Vizzy does that the assistants built into Cribl and Splunk do not: it works
 | Ask | Why it is different |
 |---|---|
 | Data from the firewall source stopped showing up in Splunk an hour ago. Trace it from the Cribl source to the Splunk index and tell me where it stops. | One investigation across both products: source, route, pipeline, destination health, then the index. No switching tools, no copying IDs between them. |
-| Which Cribl destinations send to Splunk, and does every index they write to exist in Splunk? | A question neither product can answer alone, because each only knows its own half. |
-| I need a new HEC input in Splunk for the web app's index and a Cribl destination that sends to it. | Vizzy makes both changes, in order. Each is shown as the exact request and waits for Approve. The token Splunk returns goes into the Cribl destination without appearing in the chat or the audit log. |
-| Create an event index for the web team's production logs with 90-day retention. | Done the VisiCore way: Vizzy applies VisiCore's naming and retention standards, tells you which guidance the change follows, applies it after approval, and reads it back to confirm. |
 | Propose the change and let my coworker approve it. | Share the conversation with someone in your Cribl organization. One person asks, the other reviews the exact request and approves; the audit log records both names. |
+| I need a new HEC input in Splunk for the web app's index and a Cribl destination that sends to it. | Vizzy makes both changes, in order. Each is shown as the exact request and waits for Approve. The token Splunk returns goes into the Cribl destination without appearing in the chat or the audit log. |
+| Which Cribl destinations send to Splunk, and does every index they write to exist in Splunk? | A question neither product can answer alone, because each only knows its own half. |
 | This is beyond what we can fix. Get a VisiCore engineer. | A person, not a dead end: Vizzy writes the handoff, and a VisiCore engineer reads the conversation and replies in it. |
+| Create an event index for the web team's production logs with 90-day retention. | Done the VisiCore way: Vizzy applies VisiCore's naming and retention standards, tells you which guidance the change follows, applies it after approval, and reads it back to confirm. |
 
 Behind all of them: Vizzy remembers what it has learned about your environment from one conversation to the next, and every call it makes is kept in an audit log that cannot be edited.
 
