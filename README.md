@@ -2,6 +2,8 @@
 
 Vizzy is VisiCore's Cribl consultant, inside your Cribl: ask it about your deployment in plain language, and let it make changes that you approve one request at a time.
 
+![Vizzy's home screen inside Cribl: a greeting, four suggested questions and the message box](docs/screenshots/03-home.png)
+
 ## Summary
 
 Vizzy is a Cribl app for running and understanding a Cribl deployment by conversation. It helps users find out what is configured and how it is behaving, diagnose problems across worker groups and fleets, and make configuration changes with a person approving the exact request before anything is sent.
@@ -67,6 +69,20 @@ Settings apply to everyone the app is shared with, and anyone the app is shared 
 3. On Home, ask a question or pick one of the suggested ones.
 4. When Vizzy proposes a change, read the request on the card and Approve or Reject it.
 5. Review what was done in the Audit log.
+
+### First Run, In Pictures
+
+Until a licence key is entered, every page says so and points to Settings.
+
+![Vizzy before setup: "Vizzy needs a licence key", with an Open Settings button](docs/screenshots/01-needs-licence-key.png)
+
+In Settings, paste the key VisiCore issued to your organization and save. The key is stored encrypted in Cribl and is never shown again.
+
+![The Settings page with the Licence key field](docs/screenshots/02-settings-licence-key.png)
+
+Then ask a question. Each line with a tool name is one call Vizzy made, in its own words, with how it went; the answer follows.
+
+![A conversation: Vizzy lists the Packs installed in each worker group, after the tool calls it made](docs/screenshots/04-conversation.png)
 
 ### First-Run Checklist
 * Enter the licence key.
