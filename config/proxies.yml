@@ -1,0 +1,21 @@
+# The one external host the app talks to: the Vizzy server, which holds the model, VisiCore's
+# guidance, the conversations and the audit log. The app never calls Claude itself.
+#
+# The licence key lives in the app's KV store, encrypted and write-only. Cribl's proxy adds it to
+# every request here; the browser never sees it again after it is saved in Settings.
+#
+# This hostname is fixed when the app is packaged. Keep it in step with VIZZY_SERVER in src/config.ts.
+
+3-16-140-226.sslip.io:
+  # The platform's maximum. The event stream is reopened before it is reached (src/lib/follow.ts).
+  timeout: 120000
+  paths:
+    allowlist:
+      - /api/
+  headers:
+    inject:
+      Authorization: "'Bearer ' + kv.vizzy_licence_key"
+    allowlist:
+      - content-type
+      - accept
+      - x-vizzy-user

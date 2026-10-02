@@ -1,0 +1,51 @@
+# The Cribl API paths Vizzy's tools call. Every call is made by the signed-in person's own browser,
+# so it is also bound by that person's own Cribl permissions, and anything that changes
+# configuration is sent only after they approve the exact request in the app.
+
+policies:
+  # Health, version, licences, logs, metrics, settings, users and roles (global resources).
+  - object: '/health'
+    actions: ['GET']
+  - object: '/system/*'
+    actions: ['*']
+
+  # Worker groups and fleets, their nodes, and deploying a group.
+  - object: '/master/groups'
+    actions: ['GET']
+  - object: '/master/groups/*'
+    actions: ['GET', 'PATCH']
+  - object: '/master/workers'
+    actions: ['GET']
+  - object: '/master/workers/*'
+    actions: ['GET']
+
+  # Everything inside a group, fleet or search group: sources, destinations, pipelines, routes,
+  # packs, libraries, version control, search jobs.
+  - object: '/m/:gid/*'
+    actions: ['*']
+
+  # A single node: its logs, metrics and, on Edge, its files and processes.
+  - object: '/w/:wid/*'
+    actions: ['GET', 'POST']
+
+  # The organization's members, so a conversation can be shared with a colleague.
+  - object: '/products/stream/users'
+    actions: ['GET']
+  - object: '/products/edge/users'
+    actions: ['GET']
+  - object: '/products/search/users'
+    actions: ['GET']
+
+  # Lake datasets and storage locations.
+  - object: '/products/lake/lakes/*'
+    actions: ['*']
+
+  # Notification targets and workspaces.
+  - object: '/notification-targets'
+    actions: ['*']
+  - object: '/notification-targets/*'
+    actions: ['*']
+  - object: '/workspaces'
+    actions: ['*']
+  - object: '/workspaces/*'
+    actions: ['*']
