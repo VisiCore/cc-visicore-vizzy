@@ -103,9 +103,7 @@ In Settings, paste the key VisiCore issued to your organization and save. The ke
 
 ![The Settings page with the Licence key field](docs/screenshots/02-settings-licence-key.png)
 
-Then ask a question. Each line with a tool name is one call Vizzy made, in its own words, with how it went; the answer follows.
-
-![A conversation: Vizzy lists the Packs installed in each worker group, after the tool calls it made](docs/screenshots/04-conversation.png)
+Then ask a question on Home, or pick one of the suggested ones.
 
 ### First-Run Checklist
 * Enter the licence key.
