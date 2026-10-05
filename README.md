@@ -122,9 +122,9 @@ Until a licence key is entered, every page says so and points to Settings.
 
 ![Vizzy before setup: "Vizzy needs a licence key", with an Open Settings button](docs/screenshots/01-needs-licence-key.png)
 
-In Settings, paste the key VisiCore issued to your organization and save. The key is stored encrypted in Cribl and is never shown again.
+In Settings, paste the key VisiCore issued to your organization and save. The key is stored encrypted in Cribl and is never shown again. Once it is saved, Settings shows what Vizzy can reach: Cribl, which needs nothing entered, and cards to connect Splunk and Splunk Cloud.
 
-![The Settings page with the Licence key field](docs/screenshots/02-settings-licence-key.png)
+![The Settings page after setup: the licence key in use, Cribl connected, Splunk connected with Test connection, Edit and Remove, Splunk Cloud not connected, and the Anthropic key](docs/screenshots/02-settings.png)
 
 Then ask a question on Home, or pick one of the suggested ones.
 
