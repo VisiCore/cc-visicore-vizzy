@@ -32,3 +32,7 @@ export function modelName(id: string): string {
   const [family, ...version] = id.replace(/^claude-/, '').split('-');
   return `${family.charAt(0).toUpperCase()}${family.slice(1)} ${version.join('.')}`.trim();
 }
+
+export function usd(amount: number): string {
+  return `$${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}

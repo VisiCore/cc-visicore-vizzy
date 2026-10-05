@@ -236,6 +236,8 @@ export type AppSettings = {
   llm_key: { hint: string; set_by: string; model: string; set_at: string; tested_at: string | null; test_ok: boolean | null } | null;
   default_model: string;
   llm_usage_30d: { visicore: number; org: number };
+  /** The organization's managed credit in dollars. No limit when `limit_usd` is null; absent on an older server. */
+  credit?: { limit_usd: number | null; spent_usd: number };
 };
 
 /** A Splunk or Splunk Cloud connection stored for the organization. Its credentials never come back. */

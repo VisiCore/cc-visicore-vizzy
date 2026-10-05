@@ -13,7 +13,7 @@ import {
   type ConnectionDraft,
   type ConnectionKind,
 } from '../lib/connections';
-import { exactTime } from '../lib/format';
+import { exactTime, usd } from '../lib/format';
 import { api, request, saveLicenceKey, ServerError, type AppSettings, type StoredConnection } from '../lib/server';
 import { readEvents } from '../lib/sse';
 
@@ -250,6 +250,8 @@ export function SettingsPage() {
   const llmKey = settings?.llm_key ?? null;
   const models = account.status === 'ready' ? account.me.llm.models : [];
   const usage = settings?.llm_usage_30d;
+  const credit = settings?.credit && settings.credit.limit_usd !== null ? { limit: settings.credit.limit_usd, spent: settings.credit.spent_usd } : null;
+  const creditSpent = credit !== null && credit.spent >= credit.limit;
 
   return (
     <Page open title="Settings" description="How this Cribl organization uses Vizzy.">
@@ -362,6 +364,13 @@ export function SettingsPage() {
                       <Button appearance="danger" onClick={() => setConfirmRemove(true)}>Remove key</Button>
                       {keyTest && <Text color={keyTest.ok ? 'success' : 'attention'}>{keyTest.text}</Text>}
                     </div>
+                  )}
+                  {credit && (
+                    <Text color={creditSpent ? 'attention' : 'subtle'}>
+                      {creditSpent
+                        ? `Your organization has used its ${usd(credit.limit)} of managed credit. Add your own Anthropic API key above to keep going, or ask VisiCore for more.`
+                        : `Managed credit: ${usd(Math.min(credit.spent, credit.limit))} used of ${usd(credit.limit)}.`}
+                    </Text>
                   )}
                   {usage && (
                     <Text color="subtle">
