@@ -1,18 +1,37 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Button, Card, Modal, PasswordField, SelectField, Switch, Text, Toast } from '@capra/core';
+import { Alert, Button, Card, Modal, PasswordField, SelectField, Switch, Tag, Text, Toast } from '@capra/core';
+import { ConnectionCard, type ConnectionTest } from '../components/ConnectionCard';
 import { Page } from '../components/Page';
 import { useAccount } from '../lib/account';
+import {
+  CONNECTION_KINDS,
+  KIND_LABELS,
+  bodyFor,
+  draftFor,
+  isDirty,
+  type ConnectionBody,
+  type ConnectionDraft,
+  type ConnectionKind,
+} from '../lib/connections';
 import { exactTime } from '../lib/format';
-import { api, request, saveLicenceKey, ServerError, type AppSettings } from '../lib/server';
+import { api, request, saveLicenceKey, ServerError, type AppSettings, type StoredConnection } from '../lib/server';
 import { readEvents } from '../lib/sse';
 
 type TestResult = { ok: boolean; text: string };
 
+type ByKind<T> = Partial<Record<ConnectionKind, T>>;
+
 const failure = (error: unknown, fallback: string) => (error instanceof ServerError ? error.message : fallback);
+
+const draftsFor = (stored: StoredConnection[]) =>
+  Object.fromEntries(CONNECTION_KINDS.map((kind) => [kind, draftFor(kind, of(stored, kind))])) as Record<ConnectionKind, ConnectionDraft>;
+
+const of = (stored: StoredConnection[], kind: ConnectionKind) => stored.find((connection) => connection.kind === kind) ?? null;
 
 /**
  * Setup and configuration in one form: the licence key (the only thing the app needs to work),
- * whether Vizzy may ask for changes, and the organization's own Anthropic key if it has one.
+ * what Vizzy can reach (Cribl through each person's own sign-in, Splunk through a stored
+ * connection) and whether it may ask for changes there, and the organization's own Anthropic key.
  */
 export function SettingsPage() {
   const { account, reload } = useAccount();
@@ -29,8 +48,15 @@ export function SettingsPage() {
   const [connection, setConnection] = useState<TestResult | null>(null);
   const [testing, setTesting] = useState(false);
   const [keyTest, setKeyTest] = useState<TestResult | null>(null);
+  // null: this Vizzy server does not keep connections for the app, so the cards are left out.
+  const [connections, setConnections] = useState<StoredConnection[] | null>(null);
+  const [drafts, setDrafts] = useState(() => draftsFor([]));
+  const [editing, setEditing] = useState<ConnectionKind[]>([]);
+  const [connectionProblems, setConnectionProblems] = useState<ByKind<string>>({});
+  const [connectionTests, setConnectionTests] = useState<ByKind<ConnectionTest>>({});
+  const [removing, setRemoving] = useState<ConnectionKind | null>(null);
 
-  const load = useCallback(async () => {
+  const loadSettings = useCallback(async () => {
     try {
       const loaded = await api.get<AppSettings>('/api/app/settings');
       setSettings(loaded);
@@ -41,9 +67,19 @@ export function SettingsPage() {
     }
   }, []);
 
+  const load = useCallback(async () => {
+    const [stored] = await Promise.all([api.get<StoredConnection[]>('/api/app/connections').catch(() => null), loadSettings()]);
+    setConnections(stored);
+    setDrafts(draftsFor(stored ?? []));
+    setEditing([]);
+  }, [loadSettings]);
+
   useEffect(() => {
     if (ready) void load();
-    else setSettings(null);
+    else {
+      setSettings(null);
+      setConnections(null);
+    }
   }, [ready, load]);
 
   const reset = () => {
@@ -52,14 +88,64 @@ export function SettingsPage() {
     setProblem('');
     setAllowChanges(settings?.licence.writes_enabled ?? false);
     setModel(settings?.llm_key?.model ?? null);
+    setDrafts(draftsFor(connections ?? []));
+    setEditing([]);
+    setConnectionProblems({});
   };
+
+  const changed = CONNECTION_KINDS.filter((kind) => connections !== null && isDirty(kind, drafts[kind], of(connections, kind)));
 
   const dirty =
     licenceKey.trim() !== '' ||
     anthropicKey.trim() !== '' ||
+    changed.length > 0 ||
     (settings !== null && (allowChanges !== settings.licence.writes_enabled || model !== (settings.llm_key?.model ?? null)));
 
+  const testStored = async (kind: ConnectionKind) => {
+    setConnectionTests((tests) => ({ ...tests, [kind]: 'running' }));
+    let result: ConnectionTest;
+    try {
+      const tested = await api.post<{ ok: boolean; detail: string }>(`/api/app/connections/${kind}/test`);
+      result = { ok: tested.ok, text: `${tested.ok ? 'Connected' : 'Not working'}. ${tested.detail}` };
+    } catch (error) {
+      result = { ok: false, text: failure(error, "Couldn't run the test.") };
+    }
+    setConnectionTests((tests) => ({ ...tests, [kind]: result }));
+  };
+
+  /** Send each changed connection. One the server refuses says why on its own card; the others still save. */
+  const saveConnections = async (bodies: Map<ConnectionKind, ConnectionBody>): Promise<boolean> => {
+    let allSaved = true;
+    for (const [kind, body] of bodies) {
+      try {
+        const saved = await api.put<StoredConnection>(`/api/app/connections/${kind}`, body);
+        setConnections((stored) => [...(stored ?? []).filter((connection) => connection.kind !== kind), saved]);
+        setDrafts((current) => ({ ...current, [kind]: draftFor(kind, saved) }));
+        setEditing((open) => open.filter((other) => other !== kind));
+        // Straight away: a typo in the address or the token shows now, not in the middle of a conversation.
+        void testStored(kind);
+      } catch (error) {
+        allSaved = false;
+        setConnectionProblems((problems) => ({ ...problems, [kind]: failure(error, "Couldn't save the connection.") }));
+      }
+    }
+    return allSaved;
+  };
+
   const save = async () => {
+    // Nothing is sent until every connection being changed is complete.
+    const bodies = new Map<ConnectionKind, ConnectionBody>();
+    const incomplete: ByKind<string> = {};
+    if (!licenceKey.trim()) {
+      for (const kind of changed) {
+        const built = bodyFor(kind, drafts[kind], of(connections ?? [], kind));
+        if ('problem' in built) incomplete[kind] = built.problem;
+        else bodies.set(kind, built.body);
+      }
+    }
+    setConnectionProblems(incomplete);
+    if (Object.keys(incomplete).length > 0) return;
+
     setSaving(true);
     setProblem('');
     try {
@@ -80,8 +166,13 @@ export function SettingsPage() {
         setAnthropicKey('');
         if (newKey) await testKey();
       }
-      await Promise.all([load(), reload()]);
-      Toast.success('Settings saved.');
+      if (await saveConnections(bodies)) {
+        await Promise.all([load(), reload()]);
+        Toast.success('Settings saved.');
+      } else {
+        // What did save is shown as saved; the connection that didn't keeps what was typed, beside the reason.
+        await Promise.all([loadSettings(), reload()]);
+      }
     } catch (error) {
       setProblem(failure(error, "Couldn't save the settings."));
     } finally {
@@ -140,6 +231,22 @@ export function SettingsPage() {
     }
   };
 
+  const removeConnection = async () => {
+    const kind = removing;
+    setRemoving(null);
+    if (!kind) return;
+    try {
+      await api.delete(`/api/app/connections/${kind}`);
+      setConnectionTests((tests) => ({ ...tests, [kind]: undefined }));
+      setConnectionProblems((problems) => ({ ...problems, [kind]: undefined }));
+      await Promise.all([load(), reload()]);
+      Toast.success(`${KIND_LABELS[kind]} connection removed.`);
+    } catch (error) {
+      setConnectionProblems((problems) => ({ ...problems, [kind]: failure(error, "Couldn't remove the connection.") }));
+    }
+  };
+
+  const removingFrom = removing && connections ? of(connections, removing) : null;
   const llmKey = settings?.llm_key ?? null;
   const models = account.status === 'ready' ? account.me.llm.models : [];
   const usage = settings?.llm_usage_30d;
@@ -184,18 +291,40 @@ export function SettingsPage() {
           <>
             <Card>
               <Card.Header>
-                <Card.Title>Changes</Card.Title>
+                <Card.Title>Cribl</Card.Title>
                 <Card.Description>
-                  Vizzy never changes anything without a person approving the exact request. This decides whether it may ask at all.
+                  Vizzy reaches Cribl through each person's own sign-in, from their browser, so there is nothing to connect and no
+                  Cribl credentials are stored. It never changes anything without a person approving the exact request. This
+                  decides whether it may ask at all.
                 </Card.Description>
+                <Card.Action>
+                  <Tag color="success">Connected</Tag>
+                </Card.Action>
               </Card.Header>
               <Card.Content>
                 <label className="toolbar-switch">
-                  <Switch aria-label="Allow changes, with approval" checked={allowChanges} onChange={(event) => setAllowChanges(event.target.checked)} />
+                  <Switch aria-label="Allow changes in Cribl, with approval" checked={allowChanges} onChange={(event) => setAllowChanges(event.target.checked)} />
                   <Text>Allow changes, with approval</Text>
                 </label>
               </Card.Content>
             </Card>
+
+            {connections !== null &&
+              CONNECTION_KINDS.map((kind) => (
+                <ConnectionCard
+                  key={kind}
+                  kind={kind}
+                  stored={of(connections, kind)}
+                  draft={drafts[kind]}
+                  editing={editing.includes(kind)}
+                  problem={connectionProblems[kind]}
+                  test={connectionTests[kind]}
+                  onChange={(draft) => setDrafts((current) => ({ ...current, [kind]: draft }))}
+                  onEdit={() => setEditing((open) => [...open, kind])}
+                  onTest={() => void testStored(kind)}
+                  onRemove={() => setRemoving(kind)}
+                />
+              ))}
 
             <Card>
               <Card.Header>
@@ -247,7 +376,7 @@ export function SettingsPage() {
         )}
 
         <div className="form-actions">
-          <Button disabled={!dirty || saving} onClick={reset}>Cancel</Button>
+          <Button disabled={(!dirty && editing.length === 0) || saving} onClick={reset}>Cancel</Button>
           <Button variant="primary" disabled={!dirty} pending={saving} onClick={onSave}>Save</Button>
         </div>
       </div>
@@ -267,6 +396,21 @@ export function SettingsPage() {
           The key in use{settings ? ` (ending in ${settings.licence.hint})` : ''} will be overwritten for everyone who uses this app.
           The old key cannot be read back from Cribl. If the new key belongs to another organization, its conversations and audit
           log are the ones this app will show.
+        </Text>
+      </Modal>
+
+      <Modal
+        isOpen={removing !== null}
+        size="sm"
+        title={removing ? `Remove the ${KIND_LABELS[removing]} connection?` : ''}
+        confirmButtonText="Remove connection"
+        onClose={() => setRemoving(null)}
+        onConfirm={() => void removeConnection()}
+      >
+        <Text>
+          Vizzy loses access to {removingFrom?.base_url ?? 'this environment'} for everyone who uses this app, and the stored
+          credentials are deleted from the Vizzy server. This cannot be undone: to connect again, the credentials have to be
+          entered again.
         </Text>
       </Modal>
 

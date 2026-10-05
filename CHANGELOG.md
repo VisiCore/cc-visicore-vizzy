@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.2 (2026-10-05)
+
+* Settings: connect your own Splunk and Splunk Cloud. The address and a token (or a username and
+  password) are entered in the app, tested from the Vizzy server straight away, and can be changed
+  or removed there. Each connection has its own "Allow changes, with approval" switch.
+* The Cribl card in Settings says how Cribl is reached (each person's own sign-in) and holds the
+  switch that used to sit under Changes.
+* Needs a Vizzy server that keeps connections for the app; with an older one the Splunk cards are
+  left out and everything else works as before.
+
 ## 0.1.1 (2026-10-02)
 
 * Fixed: in an installed app, clicking a navigation item (Memory, Escalations, Audit log, Settings,

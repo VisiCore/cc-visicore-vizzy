@@ -1,17 +1,16 @@
 import { useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Button, IconButton, Menu, Tag, Text } from '@capra/core';
 import { ArrowUp, Check, ChevronDown, CircleStopSolid } from '@capra/icons';
+import { KIND_LABELS } from '../lib/connections';
 import { modelName } from '../lib/format';
 import type { Me } from '../lib/server';
-
-const KIND_LABELS: Record<string, string> = { cribl: 'Cribl', splunk: 'Splunk', splunk_acs: 'Splunk Cloud' };
 
 export type ModelChoice = { model: string | null; effort: string | null };
 
 type ComposerProps = {
   busy: boolean;
   disabled?: boolean;
-  /** What Vizzy can reach here: its own Cribl always, Splunk when VisiCore has connected it. */
+  /** What Vizzy can reach here: its own Cribl always, Splunk when it is connected in Settings. */
   connections: Me['connections'];
   onSend: (text: string) => Promise<boolean>;
   onStop: () => void;

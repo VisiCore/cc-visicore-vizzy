@@ -12,8 +12,9 @@ const SECTIONS: { title: string; body: string[] }[] = [
   {
     title: 'Splunk',
     body: [
-      'If VisiCore has connected your Splunk to your organization, Vizzy can work in it from here too. Splunk is reached differently from Cribl: the Vizzy server calls it with the connection VisiCore set up, the same for everyone who uses this app, not with your own Splunk sign-in.',
-      'Changes in Splunk follow the same rule as in Cribl: Vizzy shows the exact request and waits for an approval. Whether Splunk changes are allowed at all is set on the connection by VisiCore.',
+      'Connect your Splunk in Settings and Vizzy can work in it from here too: Splunk for searching and configuration, and Splunk Cloud for administering a stack (indexes, HEC tokens, users and roles, apps). Splunk is reached differently from Cribl: the Vizzy server calls it with the one connection stored for your organization, the same for everyone who uses this app, not with your own Splunk sign-in.',
+      'The Vizzy server makes those calls over the internet, so the Splunk address has to be a public one that accepts connections from it. Private and internal addresses are refused. The credentials are stored encrypted on the Vizzy server and are never shown again.',
+      'Changes in Splunk follow the same rule as in Cribl: Vizzy shows the exact request and waits for an approval. Whether Splunk changes are allowed at all is its own switch, on the Splunk connection in Settings.',
     ],
   },
   {

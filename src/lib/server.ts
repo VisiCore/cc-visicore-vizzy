@@ -238,4 +238,15 @@ export type AppSettings = {
   llm_usage_30d: { visicore: number; org: number };
 };
 
+/** A Splunk or Splunk Cloud connection stored for the organization. Its credentials never come back. */
+export type StoredConnection = {
+  id: string;
+  kind: 'splunk' | 'splunk_acs';
+  name: string;
+  base_url: string;
+  tls_verify: boolean;
+  writes_enabled: boolean;
+  created_at: string;
+};
+
 export type Suggestion = { id: number; category: string; icon: string; title: string; prompt: string };

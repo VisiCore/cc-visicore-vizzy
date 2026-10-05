@@ -4,6 +4,12 @@
   box-sizing: border-box;
 }
 
+/* A group of radio buttons is a fieldset, and browsers draw a grooved box around one. */
+fieldset {
+  border: 0;
+  min-inline-size: 0;
+}
+
 :root {
   color-scheme: light dark;
 }
@@ -754,6 +760,12 @@ button.suggestion:hover {
 
 .form-fields {
   gap: token('spacing.lg');
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: token('spacing.sm');
 }
 
 .form-row {

@@ -53,7 +53,7 @@ Sample prompts to paste into Vizzy.
 | Onboard our Palo Alto firewall logs end to end: a syslog source in Cribl, parsing, a route, and a Splunk index sized for 30 GB a day with one year of retention. | A plan across both products built on VisiCore's onboarding and index standards, with the guidance each step follows. Each change is approved on its own card, commit and deploy included, and verified before the next. |
 | This is beyond what we can fix. Get a VisiCore engineer. | Vizzy writes the handoff and escalates. A VisiCore engineer reads the conversation and replies in it. |
 
-Splunk prompts need VisiCore to have connected your Splunk. Changes need "Allow changes, with approval" switched on.
+Splunk prompts need a Splunk connection, added in Settings. Changes need "Allow changes, with approval" switched on for the product being changed.
 
 ## Before You Install
 
@@ -81,7 +81,9 @@ Splunk prompts need VisiCore to have connected your Splunk. Changes need "Allow 
 | Setting | Required | Description | Example | Scope |
 |---|---|---|---|---|
 | Licence key | Yes | The key VisiCore issued to your organization. Stored encrypted in Cribl and never shown again. | `vzl_…` | shared |
-| Allow changes, with approval | No | Whether Vizzy may propose changes at all. Off by default. Each change still needs its own approval. | Off | shared |
+| Allow changes, with approval | No | Whether Vizzy may propose changes at all. Off by default, and set separately for Cribl and for each Splunk connection. Each change still needs its own approval. | Off | shared |
+| Splunk | No | Your Splunk's management address and a token (or a username and password), so Vizzy can work in Splunk beside Cribl. The address must be reachable from the internet. | `https://splunk.example.com:8089` | shared |
+| Splunk Cloud | No | A Splunk Cloud stack name and an admin token, so Vizzy can administer the stack: indexes, HEC tokens, users and roles, apps, IP allowlists. | `acme-prod` | shared |
 | Anthropic key | No | Your organization's own Anthropic API key. With it, Anthropic bills your account and you can choose the model. Without it, conversations run on VisiCore's managed credits. | `sk-ant-…` | shared |
 | Model | No | The default Claude model for new conversations. Available only with your own Anthropic key. | Sonnet 5.5 | shared |
 
@@ -129,6 +131,7 @@ Then ask a question on Home, or pick one of the suggested ones.
 ### First-Run Checklist
 * Enter the licence key.
 * Decide whether to allow changes.
+* Optional: connect Splunk in Settings.
 * Ask "What worker groups and fleets do I have?" to confirm Vizzy can read your environment.
 
 ## Permissions
@@ -159,14 +162,14 @@ A request that changes anything is sent only after the person presses Approve on
 * `default/policies.yml`: the Cribl API paths listed above.
 
 ### External Endpoints
-* The Vizzy server (VisiCore): runs the model, holds VisiCore's guidance, and stores conversations and the audit log. It receives your questions, the results of the Cribl API calls Vizzy makes, and the name and email of the signed-in person.
+* The Vizzy server (VisiCore): runs the model, holds VisiCore's guidance, and stores conversations and the audit log. It receives your questions, the results of the Cribl API calls Vizzy makes, and the name and email of the signed-in person. If you connect Splunk, it also holds that connection's address and credentials, encrypted, and makes the Splunk calls itself.
 
 The app calls no other external service. Calls to Claude are made by the Vizzy server.
 
 ## Data And Storage
 
 * KV keys used by the app: `vizzy_licence_key` (encrypted). Nothing else is stored in Cribl.
-* Conversations, settings and the audit log are stored on the Vizzy server, per organization. A conversation is visible only to the person who started it.
+* Conversations, settings, Splunk connections and the audit log are stored on the Vizzy server, per organization. Stored Splunk credentials are encrypted and are never shown again, in the app or anywhere else. A conversation is visible only to the person who started it.
 * Secrets in tool results and in change requests are removed before the model or the audit log sees them.
 * Uninstalling the app removes the licence key from Cribl. Data on the Vizzy server is kept until you ask VisiCore to remove it.
 
@@ -181,7 +184,7 @@ This app is built by VisiCore. VisiCore owns support, maintenance and feature re
 * In a shared conversation, an approved change is sent by the approver's browser, so the approver's tab has to be open when they approve.
 * A coworker you add can take up to a minute to see the conversation appear in their list.
 * Billing and credit usage are not available to Vizzy from inside the app.
-* Splunk is available only when VisiCore has connected it for your organization. It is reached from the Vizzy server with that one connection, not with each person's own Splunk sign-in.
+* Splunk is reached from the Vizzy server with the one connection stored for your organization, not with each person's own Splunk sign-in. The server calls it over the internet: a connection added in Settings must use a public address that accepts connections from the Vizzy server, and private or internal addresses are refused. For a Splunk that is not reachable that way, talk to VisiCore.
 * Vizzy cannot install or manage other Cribl apps.
 
 ## Troubleshooting
@@ -190,6 +193,7 @@ This app is built by VisiCore. VisiCore owns support, maintenance and feature re
 * "Vizzy needs a licence key": enter the key in Settings.
 * Vizzy says a call was refused: your Cribl role does not allow it.
 * Vizzy says it cannot make changes: "Allow changes, with approval" is off in Settings.
+* Vizzy says there is no Splunk connection: add one in Settings, then press Test connection on it.
 
 ### The App Cannot Connect To An API Or Service
 * Press Test connection in Settings. If it fails, the licence key may have been revoked or the Vizzy server may be unreachable from your Cribl.
@@ -216,7 +220,7 @@ src/
   lib/session.ts     one open conversation and its live event stream
   lib/server.ts      calls to the Vizzy server
   pages/             Chat, Audit, Settings, Docs
-  components/        thread, approval card, composer
+  components/        thread, approval card, composer, connection card
 config/
   policies.yml       Cribl API access grants
   proxies.yml        the Vizzy server
@@ -233,7 +237,7 @@ This app is proprietary to VisiCore. See [LICENSE](./LICENSE). Using it requires
 |---|---|
 | App Name | Vizzy |
 | App ID | cc-visicore-vizzy |
-| Version | 0.1.1 |
+| Version | 0.1.2 |
 | Author | VisiCore |
 | Support Model | partner-built |
 | Support Label | Partner Built |
