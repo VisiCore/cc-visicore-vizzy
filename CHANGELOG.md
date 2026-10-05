@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.3 (2026-10-05)
+
+* Settings shows the organization's managed credit when VisiCore has set a limit on it: how much is
+  used, and what to do when it is used up (add your own Anthropic key, or ask VisiCore for more).
+  Organizations with no limit see nothing new.
+* README: a recording of install and first-time setup, install steps that match what Cribl shows,
+  and the Enterprise plan requirement.
+
 ## 0.1.2 (2026-10-05)
 
 * Settings: connect your own Splunk and Splunk Cloud. The address and a token (or a username and

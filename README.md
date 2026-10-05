@@ -242,7 +242,7 @@ This app is proprietary to VisiCore. See [LICENSE](./LICENSE). Using it requires
 |---|---|
 | App Name | Vizzy |
 | App ID | cc-visicore-vizzy |
-| Version | 0.1.2 |
+| Version | 0.1.3 |
 | Author | VisiCore |
 | Support Model | partner-built |
 | Support Label | Partner Built |
