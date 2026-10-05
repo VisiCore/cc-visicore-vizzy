@@ -57,13 +57,17 @@ Splunk prompts need a Splunk connection, added in Settings. Changes need "Allow 
 
 ## Before You Install
 
-* Required Cribl product or deployment type: Cribl.Cloud.
+* Required Cribl product or deployment type: Cribl.Cloud, on an Enterprise licence or plan. Vizzy reaches its server through Cribl's app proxy, and Cribl refuses to install an app that uses one on other plans.
 * Required permissions or roles: Vizzy acts with the signed-in person's own Cribl permissions. It can see and change only what that person can.
 * Required external systems or APIs: the Vizzy server run by VisiCore. The app does not work without it.
 * Required configuration values: a licence key from VisiCore.
 * Known limits or prerequisites: the browser tab has to stay open while Vizzy works, because the tab makes the Cribl API calls.
 
 ## Installation
+
+![Installing Vizzy and setting it up: the package is imported from a file, the permissions are reviewed and the app installed, the licence key is saved and tested, and Splunk is connected in Settings](docs/screenshots/install.gif)
+
+*Install and first-time setup, one screen per step: import the package, review the permissions and install, save the licence key and test it, then connect Splunk. Cribl needs nothing entered.*
 
 ### Install From Marketplace or URL
 1. Go to Apps in your Cribl environment.
@@ -72,9 +76,10 @@ Splunk prompts need a Splunk connection, added in Settings. Changes need "Allow 
 4. Share the app with the people who should use it.
 
 ### If The App Is Not Yet In The Cribl Marketplace
-1. Get the `.tgz` package for the version you want from VisiCore.
-2. In Cribl, go to Apps and choose import from file.
-3. Upload the package, review the app details and complete installation.
+1. Download the `.tgz` package from the [latest release](https://github.com/VisiCore/cc-visicore-vizzy/releases/latest).
+2. In Cribl, go to Apps and choose Add App, then Import from File. With no app installed yet, the button is Build my own App.
+3. Select the package and press Import. Review the API paths and the external host it uses, then press Install.
+4. Share the app with the people who should use it.
 
 ## Configuration
 
