@@ -1,9 +1,7 @@
 {
   "/api/me": {"user": {"id": "u1", "name": "Alex Rivera", "email": "alex@example.com", "role": "admin", "can_approve": true}, "org": {"id": "o1", "name": "Example Co"}, "connections": [], "llm": {"can_choose": false, "model": "default", "models": [], "effort": "default", "efforts": []}},
-  "/api/v1/vizzy/ping": {"company": 1, "company_name": "Example Co", "writes_allowed": false, "message": null},
   "/api/conversations": [],
   "/api/notes": {"org": {"id": "o1", "name": "Example Co"}, "preferences": [], "memories": [], "limits": {"per_tier": 20, "max_chars": 1000}, "can_edit_memories": false},
-  "/api/v1/vizzy/memory": {"preferences": [{"id": 1, "text": "Answer in short bullet points."}], "company": [{"id": 2, "text": "Production workers run in the default group."}]},
   "/api/app/settings": {"org": {"id": "o1", "name": "Example Co"}, "licence": {"hint": "a1b2", "writes_enabled": false}, "llm_key": null, "default_model": "default", "llm_usage_30d": {"visicore": 0, "org": 0}},
   "/api/app/connections": []
 }

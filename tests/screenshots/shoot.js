@@ -7,6 +7,26 @@ const answers = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'fixtu
 const screens = { chat: '/', memory: '/memory', settings: '/settings', 'no-key': '/' };
 const user = { id: 'u1', username: 'alex', email: 'alex@example.com', firstName: 'Alex', lastName: 'Rivera' };
 
+// Changed when more than 100 pixels differ by more than a little: anti-aliasing alone stays unchanged.
+const differs = async (browser, shots) => {
+  const page = await browser.newPage();
+  const count = await page.evaluate(async (pngs) => {
+    const [a, b] = await Promise.all(pngs.map(async (png) => {
+      const image = new Image();
+      image.src = `data:image/png;base64,${png}`;
+      await image.decode();
+      const context = new OffscreenCanvas(image.width, image.height).getContext('2d');
+      context.drawImage(image, 0, 0);
+      return context.getImageData(0, 0, image.width, image.height).data;
+    }));
+    let n = 0;
+    for (let i = 0; i < a.length; i += 4) if (Math.abs(a[i] - b[i]) + Math.abs(a[i + 1] - b[i + 1]) + Math.abs(a[i + 2] - b[i + 2]) > 48) n++;
+    return n;
+  }, shots);
+  await page.close();
+  return count > 100;
+};
+
 try {
   const browser = await chromium.launch(), rows = [];
   for (const [name, route] of Object.entries(screens)) for (const theme of ['light', 'dark']) {
@@ -21,11 +41,12 @@ try {
         return r.fulfill(p in answers ? { json: answers[p] } : { status: 404, json: {} });
       });
       await page.goto('http://app.local' + route, { waitUntil: 'networkidle' });
+      await page.evaluate(() => document.fonts.ready);
       await page.waitForTimeout(500);
       shots.push((await page.screenshot({ animations: 'disabled' })).toString('base64'));
       await page.close();
     }
-    rows.push({ title: `${name} (${theme})`, shots, changed: shots[0] !== shots[1] });
+    rows.push({ title: `${name} (${theme})`, shots, changed: await differs(browser, shots) });
   }
   await browser.close();
   const summary = `${rows.filter((r) => r.changed).length} of ${rows.length} screens changed`;
