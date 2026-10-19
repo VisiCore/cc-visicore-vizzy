@@ -1,0 +1,36 @@
+name: Screenshots
+
+# Shoots the pull request's base and head with canned answers, and uploads one before/after page.
+on:
+  pull_request:
+    branches: [develop-jpe]
+
+permissions:
+  contents: read
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: before
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          path: after
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: for d in before after; do (cd "$d" && npm ci && npx vite build); done
+      - run: npm install && npx playwright install --with-deps chromium
+        working-directory: after/tests/screenshots
+      - run: node after/tests/screenshots/shoot.js before/dist after/dist out
+      - id: page
+        uses: actions/upload-artifact@v7
+        with:
+          path: out/app-screenshots.html
+          archive: false
+      - run: echo "[Open the before/after page](${{ steps.page.outputs.artifact-url }})" >> "$GITHUB_STEP_SUMMARY"
