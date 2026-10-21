@@ -1,9 +1,21 @@
 name: Screenshots
 
-# Shoots the pull request's base and head with canned answers, uploads one before/after page, and links it on the pull request.
+# Shoots the pull request's base and head with canned answers, uploads one before/after page, and links it on the
+# pull request when a screen changed.
 on:
   pull_request:
     branches: [develop-jpe]
+    # Only the files the screenshots are made from.
+    paths:
+      - src/**
+      - public/**
+      - index.html
+      - package.json
+      - package-lock.json
+      - vite.config.ts
+      - .postcssrc.mjs
+      - tests/screenshots/**
+      - .github/workflows/screenshots.yml
 
 permissions:
   contents: read
@@ -45,12 +57,18 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number }}
+      SUMMARY: ${{ needs.screenshots.outputs.summary }}
+      URL: ${{ needs.screenshots.outputs.page-url }}
     steps:
-      - run: |
+      - if: ${{ !startsWith(needs.screenshots.outputs.summary, '0 of ') }}
+        run: |
           gh pr comment "$PR" --edit-last --create-if-none --body "Screenshots: $SUMMARY. [Open the before/after page]($URL)"
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          PR: ${{ github.event.pull_request.number }}
-          SUMMARY: ${{ needs.screenshots.outputs.summary }}
-          URL: ${{ needs.screenshots.outputs.page-url }}
+      # Nothing changed: no link. An earlier comment, if there is one, is updated to say so; with none, the step fails harmlessly.
+      - if: ${{ startsWith(needs.screenshots.outputs.summary, '0 of ') }}
+        continue-on-error: true
+        run: |
+          gh pr comment "$PR" --edit-last --body "Screenshots: $SUMMARY."
