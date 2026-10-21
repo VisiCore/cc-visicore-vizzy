@@ -1,0 +1,74 @@
+name: Screenshots
+
+# Shoots the pull request's base and head with canned answers, uploads one before/after page, and links it on the
+# pull request when a screen changed.
+on:
+  pull_request:
+    branches: [develop-jpe]
+    # Only the files the screenshots are made from.
+    paths:
+      - src/**
+      - public/**
+      - index.html
+      - package.json
+      - package-lock.json
+      - vite.config.ts
+      - .postcssrc.mjs
+      - tests/screenshots/**
+      - .github/workflows/screenshots.yml
+
+permissions:
+  contents: read
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    outputs:
+      summary: ${{ steps.shoot.outputs.summary }}
+      page-url: ${{ steps.page.outputs.artifact-url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: before
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          path: after
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: for d in before after; do (cd "$d" && npm ci && npx vite build); done
+      - run: npm install && npx playwright install --with-deps chromium
+        working-directory: after/tests/screenshots
+      - id: shoot
+        run: |
+          summary=$(node after/tests/screenshots/shoot.js before/dist after/dist out)
+          echo "summary=$summary" >> "$GITHUB_OUTPUT"
+      - id: page
+        uses: actions/upload-artifact@v7
+        with:
+          path: out/app-screenshots.html
+          archive: false
+  comment:
+    needs: screenshots
+    if: ${{ !github.event.pull_request.head.repo.fork }}
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number }}
+      SUMMARY: ${{ needs.screenshots.outputs.summary }}
+      URL: ${{ needs.screenshots.outputs.page-url }}
+    steps:
+      - if: ${{ !startsWith(needs.screenshots.outputs.summary, '0 of ') }}
+        run: |
+          gh pr comment "$PR" --edit-last --create-if-none --body "Screenshots: $SUMMARY. [Open the before/after page]($URL)"
+      # Nothing changed: no link. An earlier comment, if there is one, is updated to say so; with none, the step fails harmlessly.
+      - if: ${{ startsWith(needs.screenshots.outputs.summary, '0 of ') }}
+        continue-on-error: true
+        run: |
+          gh pr comment "$PR" --edit-last --body "Screenshots: $SUMMARY."
